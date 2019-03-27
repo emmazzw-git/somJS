@@ -1,9 +1,11 @@
 let colorNumber = 3;
-let nodeMatrixLength = 10;
+let nodeMatrixWidth = 10;
+let nodeMatrixHeight = 10;
+let inputVectorLength = 10;
 let maxIternation = 100;
 
 //generate constants
-let initialRadius = nodeMatrixLength / 2;
+let initialRadius = Math.max(nodeMatrixWidth, nodeMatrixHeight) / 2;
 let timeConstant = maxIternation / (Math.log(initialRadius));
 const initialLearningRate = 0.1;
 
@@ -13,7 +15,7 @@ let weightVectorXY = []; // initial weight vector
 let bmuWeight = []; // initial BMU weight
 
 // generate the input vector
-for (let i = 0; i < nodeMatrixLength; i++) {
+for (let i = 0; i < inputVectorLength; i++) {
     let inputVectorColorData = [];
     for (let j = 0; j < colorNumber; j++) {
         inputVectorColorData[j] = Math.random();
@@ -23,9 +25,9 @@ for (let i = 0; i < nodeMatrixLength; i++) {
 console.log(inputVector);
 
 // generate the weight vector
-for (let p = 0; p < nodeMatrixLength; p++) {
+for (let p = 0; p < nodeMatrixWidth; p++) {
     let weightVectorX = [];
-    for (let q = 0; q < nodeMatrixLength; q++) {
+    for (let q = 0; q < nodeMatrixHeight; q++) {
         let weightVectorXElement = [];
 		for (let r = 0; r < colorNumber; r++) {
 			weightVectorXElement[r] = Math.random();
@@ -41,9 +43,9 @@ console.log(weightVectorXY);
 const generateBMU = () => {
 	let distanceXY = [];
 	let minValueBMU = 0;
-	for (let m = 0; m < nodeMatrixLength; m++) {
+	for (let m = 0; m < nodeMatrixWidth; m++) {
 		let distanceX = [];
-		for (let n = 0; n < nodeMatrixLength; n++) {
+		for (let n = 0; n < nodeMatrixHeight; n++) {
 			let singleNodeDistanceSum = 0;
 			for (let l = 0; l < colorNumber; l++) {
 				singleNodeDistanceSum += Math.pow((inputVector[n][l] - weightVectorXY[m][n][l]), 2);
@@ -68,8 +70,8 @@ const generateBMU = () => {
 const getBMUWeight = () => {
 	const { distanceXY, minValueBMU } = generateBMU();
 	
-	for (let x = 0; x < nodeMatrixLength; x++) {
-		for(let y = 0; y < nodeMatrixLength; y++) {
+	for (let x = 0; x < nodeMatrixWidth; x++) {
+		for(let y = 0; y < nodeMatrixHeight; y++) {
 			if (distanceXY[x][y] === minValueBMU) {
 				bmuWeight = weightVectorXY[x][y];
 				return { x, y, bmuWeight };
@@ -96,9 +98,9 @@ const getWeightDistance = () => {
 	
 	let weightDistanceXY = [];
 	
-	for (let s = 0; s < nodeMatrixLength; s++) {
+	for (let s = 0; s < nodeMatrixWidth; s++) {
 		let weightDistanceX = [];
-		for (let t = 0; t < nodeMatrixLength; t++) {
+		for (let t = 0; t < nodeMatrixHeight; t++) {
 			let singleNodeWeightDistanceSum = 0;
 			for (let w = 0; w < colorNumber; w++) {
 				singleNodeWeightDistanceSum += Math.pow((weightVectorXY[s][t][w] - bmuWeight[w]),2);
@@ -112,12 +114,14 @@ const getWeightDistance = () => {
 	return { weightDistanceXY };
 };
 
+
+// TODO:
 // calculate updated weight
 // @param iteration t
 const updateWeight = (t) => {
 	const { weightDistanceXY } = getWeightDistance();
-	for (let u = 0; u < nodeMatrixLength; u++) {
-		for (let v = 0; v < nodeMatrixLength; v++) {
+	for (let u = 0; u < nodeMatrixWidth; u++) {
+		for (let v = 0; v < nodeMatrixHeight; v++) {
 			weightDistanceXY[u][v]
 		}
 	}
@@ -132,7 +136,5 @@ const updateWeight = (t) => {
 	return (2 * Math.pow(radius, 2));
 };*/
 
-	  
-	  
 getBMUWeight();
 getWeightDistance();
