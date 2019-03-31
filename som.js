@@ -153,9 +153,9 @@ const updateWeight = (iterationNum) => {
 updateWeight(maxIteration);
 
 /*TODO:
-1. Pick up an index of the updatedWeight and calcuate the color value 
+1. Pick up an index of the updatedWeight and map the color value 
 2. Interprete the color value and plot
-    https://plot.ly/javascript/colorscales/
+    https://plot.ly/javascript/
 3. Apply more iterations in bigger grid size
 */
 
