@@ -3,11 +3,11 @@ const nodeMatrixWidth = 10;
 const nodeMatrixHeight = 10;
 const inputVectorLength = 10;
 const maxIteration = 100;
+const initialLearningRate = 0.1;
 
 //generate constants
 let initialRadius = Math.max(nodeMatrixWidth, nodeMatrixHeight) / 2;
 let timeConstant = maxIteration / (Math.log(initialRadius));
-const initialLearningRate = 0.1;
 
 // initialization
 let inputVector = []; // initial input vector
@@ -29,9 +29,13 @@ for (let p = 0; p < nodeMatrixWidth; p++) {
     let weightVectorX = [];
     for (let q = 0; q < nodeMatrixHeight; q++) {
         let weightVectorXElement = [];
-		for (let r = 0; r < colorNumber; r++) {
-			weightVectorXElement[r] = Math.random();
-		}
+        for (let s = 0; s < inputVectorLength; s++) {
+            let weightVectorXYElement = [];
+            for (let r = 0; r < colorNumber; r++) {
+                weightVectorXYElement[r] = Math.random();
+            }
+            weightVectorXElement[s] = weightVectorXYElement;
+        }
 		weightVectorX[q] = weightVectorXElement;
     }
     weightVectorXY[p] = weightVectorX;
@@ -46,13 +50,17 @@ const generateBMU = () => {
 	for (let m = 0; m < nodeMatrixWidth; m++) {
 		let distanceX = [];
 		for (let n = 0; n < nodeMatrixHeight; n++) {
-			let singleNodeDistanceSum = 0;
-			for (let l = 0; l < colorNumber; l++) {
-				singleNodeDistanceSum += Math.pow((inputVector[n][l] - weightVectorXY[m][n][l]), 2);
-			}
-			distanceX[n] = Math.sqrt(singleNodeDistanceSum);
+            let singleNodeInputVectorDistanceSum = 0;
+            for (let k = 0; k < inputVectorLength; k++) {
+                let singleNodeInputElementDistanceSum = 0;
+                for (let l = 0; l < colorNumber; l++) {
+                    singleNodeInputElementDistanceSum += Math.pow((inputVector[k][l] - weightVectorXY[m][n][k][l]), 2);
+                }
+                singleNodeInputVectorDistanceSum += singleNodeInputElementDistanceSum;
+            }
+			distanceX[n] = Math.sqrt(singleNodeInputVectorDistanceSum);
 		}
-		distanceXY[m] = distanceX;
+		distanceXY[m] = distanceX;   
 	}
 	minValueBMU = Math.min.apply(null, distanceXY.flat());
 	
@@ -101,10 +109,14 @@ const getWeightDistance = () => {
 	for (let s = 0; s < nodeMatrixWidth; s++) {
 		let weightDistanceX = [];
 		for (let t = 0; t < nodeMatrixHeight; t++) {
-			let singleNodeWeightDistanceSum = 0;
-			for (let w = 0; w < colorNumber; w++) {
-				singleNodeWeightDistanceSum += Math.pow((weightVectorXY[s][t][w] - bmuWeight[w]),2);
-			}
+            let singleNodeWeightDistanceSum = 0;
+            for (let v = 0; v < inputVectorLength; v++) {
+                let singleNodeInputElementWeightDistanceSum = 0;
+                for (let w = 0; w < colorNumber; w++) {
+                    singleNodeWeightDistanceSum += Math.pow((weightVectorXY[s][t][v][w] - bmuWeight[v][w]),2);
+                }
+                singleNodeWeightDistanceSum += singleNodeInputElementWeightDistanceSum
+            }
 			weightDistanceX[t] = Math.sqrt(singleNodeWeightDistanceSum);
 		}
 		weightDistanceXY[s] = weightDistanceX;
@@ -131,14 +143,16 @@ const updateWeight = (iterationNum) => {
     let learningRate = getLearningRate(iterationNum);
     for (let u = 0; u < nodeMatrixWidth; u++) {
         for (let v = 0; v < nodeMatrixHeight; v++) {
-            let inputWeightDiffVector = [];
             let weightDelta = [];
             let influenceRate = getInfluence(iterationNum, weightDistanceXY[u][v]);
             // naiive assumption on current value of the input vector
-            for (let h = 0; h < colorNumber; h++) {
-                inputWeightDiffVector[h] = inputVector[v][h] - weightVectorXY[u][v][h]
-                weightDelta[h] = learningRate * influenceRate * inputWeightDiffVector[h];
-                weightVectorXY[u][v][h] = weightVectorXY[u][v][h] + weightDelta[h];
+            for (let g = 0; g < inputVectorLength; g++) {
+                let inputElementWeightDiffVector = [];
+                for (let h = 0; h < colorNumber; h++) {
+                    inputElementWeightDiffVector[h] = inputVector[g][h] - weightVectorXY[u][v][g][h];
+                    weightDelta[h] = learningRate * influenceRate * inputElementWeightDiffVector[h];
+                    weightVectorXY[u][v][g][h] = weightVectorXY[u][v][g][h] + weightDelta[h];
+                }
             }
         }
     }
