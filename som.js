@@ -6,8 +6,8 @@ const maxIteration = 100;
 const initialLearningRate = 0.1;
 
 //generate constants
-let initialRadius = Math.max(nodeMatrixWidth, nodeMatrixHeight) / 2;
-let timeConstant = maxIteration / (Math.log(initialRadius));
+const initialRadius = Math.max(nodeMatrixWidth, nodeMatrixHeight) / 2;
+const timeConstant = maxIteration / (Math.log(initialRadius));
 
 // initialization
 let inputVector = []; // initial input vector
@@ -22,7 +22,6 @@ for (let i = 0; i < inputVectorLength; i++) {
     }
     inputVector[i] = inputVectorColorData;
 }
-console.log(inputVector);
 
 // generate the weight vector
 for (let p = 0; p < nodeMatrixWidth; p++) {
@@ -40,8 +39,6 @@ for (let p = 0; p < nodeMatrixWidth; p++) {
     }
     weightVectorXY[p] = weightVectorX;
 }
-console.log(weightVectorXY);
-
 
 // BMU
 const generateBMU = () => {
@@ -63,10 +60,6 @@ const generateBMU = () => {
 		distanceXY[m] = distanceX;   
 	}
 	minValueBMU = Math.min.apply(null, distanceXY.flat());
-	
-	console.log('distanceXY', distanceXY);
-	console.log('flattened distanceXY', distanceXY.flat());
-	console.log('min value', Math.min(Math.min.apply(null, distanceXY.flat())));
 	
 	return {
 		distanceXY,
@@ -121,8 +114,6 @@ const getWeightDistance = () => {
 		}
 		weightDistanceXY[s] = weightDistanceX;
 	}
-	
-	console.log('weightDistanceXY', weightDistanceXY);
 	return { weightDistanceXY };
 };
 
@@ -151,14 +142,12 @@ const updateWeight = (iterationNum) => {
                 for (let h = 0; h < colorNumber; h++) {
                     inputElementWeightDiffVector[h] = inputVector[g][h] - weightVectorXY[u][v][g][h];
                     weightDelta[h] = learningRate * influenceRate * inputElementWeightDiffVector[h];
-                    weightVectorXY[u][v][g][h] = weightVectorXY[u][v][g][h] + weightDelta[h];
+                    weightVectorXY[u][v][g][h] = parseFloat((weightVectorXY[u][v][g][h] + weightDelta[h]).toFixed(2));
                 }
             }
         }
     }
-    console.log('weightVectorXY', weightVectorXY);
+    return weightVectorXY;
 };
 
-getBMUWeight();
-getWeightDistance();
 updateWeight(maxIteration);
