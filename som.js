@@ -1,12 +1,12 @@
-let colorNumber = 3;
-let nodeMatrixWidth = 10;
-let nodeMatrixHeight = 10;
-let inputVectorLength = 10;
-let maxIternation = 100;
+const colorNumber = 3;
+const nodeMatrixWidth = 10;
+const nodeMatrixHeight = 10;
+const inputVectorLength = 10;
+const maxIteration = 100;
 
 //generate constants
 let initialRadius = Math.max(nodeMatrixWidth, nodeMatrixHeight) / 2;
-let timeConstant = maxIternation / (Math.log(initialRadius));
+let timeConstant = maxIteration / (Math.log(initialRadius));
 const initialLearningRate = 0.1;
 
 // initialization
@@ -81,15 +81,15 @@ const getBMUWeight = () => {
 };
 
 // calculate neighbourhood radius
-// @param iternation t
-const getNeighbourRadius = (t) => {
-	return initialRadius * Math.exp(t/timeConstant);
+// @param iterationNum
+const getNeighbourRadius = (iterationNum) => {
+	return initialRadius * Math.exp(iterationNum/timeConstant);
 };
 
 // calculate learning rate
-// @param iternation t
-const getLearningRate = (t) => {
-	return initialLearningRate * Math.exp(t/timeConstant);
+// @param iterationNum
+const getLearningRate = (iterationNum) => {
+	return initialLearningRate * Math.exp(iterationNum/timeConstant);
 };
 
 // calculate node weight to BMU weight distance
@@ -114,27 +114,37 @@ const getWeightDistance = () => {
 	return { weightDistanceXY };
 };
 
-
-// TODO:
-// calculate updated weight
-// @param iteration t
-const updateWeight = (t) => {
-	const { weightDistanceXY } = getWeightDistance();
-	for (let u = 0; u < nodeMatrixWidth; u++) {
-		for (let v = 0; v < nodeMatrixHeight; v++) {
-			weightDistanceXY[u][v]
-		}
-	}
+// calculate influence
+// @param iterationNum
+// @param node ith weight distance
+const getInfluence = (iterationNum, weightDistance) => {
+	
+	const radius = getNeighbourRadius(iterationNum);
+	
+	return Math.exp(-(Math.pow(weightDistance, 2) / (2 * Math.pow(radius, 2))));
 };
 
-// calculate influence
-// @param iteration t
-/*const getInfluence = (t) => {
-	
-	const radius = getNeighbourRadius(t);
-	
-	return (2 * Math.pow(radius, 2));
-};*/
+// calculate updated weight
+// @param iterationNum 
+const updateWeight = (iterationNum) => {
+    const { weightDistanceXY } = getWeightDistance();
+    let learningRate = getLearningRate(iterationNum);
+    for (let u = 0; u < nodeMatrixWidth; u++) {
+        for (let v = 0; v < nodeMatrixHeight; v++) {
+            let inputWeightDiffVector = [];
+            let weightDelta = [];
+            let influenceRate = getInfluence(iterationNum, weightDistanceXY[u][v]);
+            // naiive assumption on current value of the input vector
+            for (let h = 0; h < colorNumber; h++) {
+                inputWeightDiffVector[h] = inputVector[v][h] - weightVectorXY[u][v][h]
+                weightDelta[h] = learningRate * influenceRate * inputWeightDiffVector[h];
+                weightVectorXY[u][v][h] = weightVectorXY[u][v][h] + weightDelta[h];
+            }
+        }
+    }
+    console.log('weightVectorXY', weightVectorXY);
+};
 
 getBMUWeight();
 getWeightDistance();
+updateWeight(maxIteration);
