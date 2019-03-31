@@ -4,6 +4,8 @@ const nodeMatrixHeight = 10;
 const inputVectorLength = 10;
 const maxIteration = 100;
 const initialLearningRate = 0.1;
+const maxRGBDecimalCodeValue = 255;
+const weightIndex = 0;
 
 //generate constants
 const initialRadius = Math.max(nodeMatrixWidth, nodeMatrixHeight) / 2;
@@ -142,7 +144,7 @@ const updateWeight = (iterationNum) => {
                 for (let h = 0; h < colorNumber; h++) {
                     inputElementWeightDiffVector[h] = inputVector[g][h] - weightVectorXY[u][v][g][h];
                     weightDelta[h] = learningRate * influenceRate * inputElementWeightDiffVector[h];
-                    weightVectorXY[u][v][g][h] = parseFloat((weightVectorXY[u][v][g][h] + weightDelta[h]).toFixed(2));
+                    weightVectorXY[u][v][g][h] = (weightVectorXY[u][v][g][h] + weightDelta[h]);
                 }
             }
         }
@@ -150,12 +152,51 @@ const updateWeight = (iterationNum) => {
     return weightVectorXY;
 };
 
-updateWeight(maxIteration);
+// index of updateWeight picking and color value mapping function
+// @param index
+const getColorGridValue = (index) => {
+    const weightVector = updateWeight(maxIteration);
+    let colorValueVector = [];
+    let colorStringVector = [];
+    for (let e = 0; e < nodeMatrixWidth; e++) {
+        let colorValueVectorX = [];
+        let colorStringVectorX = [];
+        for (let f = 0; f < nodeMatrixHeight; f++) {
+            let colorValueVectorY = [];
+            let colorStringVectorY = `'1.0', 'rgb(`;
+            for (let g = 0; g < colorNumber; g++) {
+                colorValueVectorY[g] = parseInt(weightVector[e][f][index][g] * maxRGBDecimalCodeValue);
+                colorStringVectorY += `${colorValueVectorY[g]},`
+            }
+            colorStringVectorY += `)'`;
+            colorValueVectorX[f] = colorValueVectorY;
+            colorStringVectorX[f] = colorStringVectorY
+        }
+        colorValueVector[e] = colorValueVectorX;
+        colorStringVector[e] = colorStringVectorX;
+    }
+    console.log('colorValueVector', colorValueVector);
+    console.log('colorStringVector', colorStringVector);
+
+    return {
+        colorValueVector,
+        colorStringVector
+    };
+};
+
+Plotly.d3.json('https://raw.githubusercontent.com/plotly/datasets/master/custom_heatmap_colorscale.json', function(figure) {
+    let data = [{
+        z: figure.z,
+        colorscale: getColorGridValue(weightIndex).colorStringVector,
+        type: 'heatmap'
+    }];
+    Plotly.newPlot('myDiv', data, {}, {showSendToCloud:true});
+});
+
 
 /*TODO:
-1. Pick up an index of the updatedWeight and map the color value 
-2. Interprete the color value and plot
+1. Interprete the color value and plot
     https://plot.ly/javascript/
-3. Apply more iterations in bigger grid size
+2. Apply more iterations in bigger grid size
 */
 
