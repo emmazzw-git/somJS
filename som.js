@@ -108,7 +108,7 @@ const getWeightDistance = () => {
                 for (let w = 0; w < colorNumber; w++) {
                     singleNodeWeightDistanceSum += Math.pow((weightVectorXY[s][t][v][w] - bmuWeight[v][w]),2);
                 }
-                singleNodeWeightDistanceSum += singleNodeInputElementWeightDistanceSum
+                singleNodeWeightDistanceSum += singleNodeInputElementWeightDistanceSum;
             }
 			weightDistanceX[t] = Math.sqrt(singleNodeWeightDistanceSum);
 		}
@@ -151,3 +151,11 @@ const updateWeight = (iterationNum) => {
 };
 
 updateWeight(maxIteration);
+
+/*TODO:
+1. Pick up an index of the updatedWeight and calcuate the color value 
+2. Interprete the color value and plot
+    https://plot.ly/javascript/colorscales/
+3. Apply more iterations in bigger grid size
+*/
+
